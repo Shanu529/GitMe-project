@@ -1,6 +1,6 @@
 
 
-import Issue from "../models/issueModel";
+import Issue from "../models/issueModel.js";
 import mongoose from "mongoose";
 
 
