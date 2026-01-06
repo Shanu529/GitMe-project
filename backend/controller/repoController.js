@@ -82,14 +82,14 @@ const fatchedRepositoryByName = async (req, res) => {
 
 const fatchedRepositorisForCurrentUser = async (req, res) => {
 
-    const { userID } = req.params.userID;
+    const { userID } = req.params;
     try {
         const userRepo = await Repository.find({ owner: userID });
         if (!userRepo || userRepo.length == 0) {
             return res.status(404).json({ error: "Repository not found!" })
         }
 
-        res.status(200).json({ message: "Repository found", userRepo });
+        res.status(200).json({ message: "Repository found", repositories: userRepo });
     } catch (error) {
         console.error("error found during fatching current repository");
         res.status(500).json({ message: "someting wernt wrong", error });
