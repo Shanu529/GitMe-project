@@ -1,7 +1,4 @@
 
-
-import React from 'react'
-
 import githubLogo from "../assets/github-mark-white.png";
 
 import { useEffect, useState } from "react";
@@ -12,6 +9,8 @@ import { Link, useNavigate } from "react-router-dom";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function Dashboard() {
+  const { currentUser } = useAuth();
+
   const [repositories, setRepositories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestedRepository, setsuggestedRepository] = useState([]);
@@ -72,12 +71,21 @@ function Dashboard() {
     repo.name.toLowerCase().includes(publicSearch.toLowerCase())
   );
 
+  const visitProfile = () =>{
+    if(currentUser){
+      navigate("/profile")
+    }else{
+      navigate("/auth")
+    }
+    
+  }
+
   return (
     <div className="min-h-screen bg-[#0d1117] text-gray-200 flex">
       {/* Sidebar */}
       <aside className="w-64 border-r border-gray-800 p-4 hidden md:block">
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 bg-white rounded-full" />
+          <div className="w-8 h-8 bg-white rounded-full" onClick={visitProfile} />
           <span className="font-semibold">Dashboard</span>
         </div>
 

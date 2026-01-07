@@ -84,7 +84,7 @@ const fatchedRepositorisForCurrentUser = async (req, res) => {
 
     const { userID } = req.params;
     try {
-        const userRepo = await Repository.find({ owner: userID });
+        const userRepo = await Repository.find({ owner:userID });
         if (!userRepo || userRepo.length == 0) {
             return res.status(404).json({ error: "Repository not found!" })
         }

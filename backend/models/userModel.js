@@ -5,19 +5,31 @@ import mongoose from "mongoose";
 const Userschema = new mongoose.Schema({
     username: {
         type: String,
-         required: true,
+        required: true,
         unique: true
     },
 
     email: {
         type: String,
-          required: true,   
+        required: true,
         unique: true
     },
 
     password: {
         type: String,
-         required: true  
+        required: true
+    },
+    bio: {
+        type: String,
+    },
+    profession: {
+        type: String,
+    },
+    city: {
+        type: String,
+    },
+    country: {
+        type: String,
     },
 
     repositories: [{
@@ -35,7 +47,7 @@ const Userschema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Repository"
     }]
-},{ timestamps: true }  )
+}, { timestamps: true })
 
 const User = mongoose.model("User", Userschema);
 export default User;
