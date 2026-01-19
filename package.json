@@ -1,0 +1,14 @@
+{
+  "name": "gitme",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "gitme": "./cli/index.js"
+  },
+  "dependencies": {
+    "form-data": "^4.0.0",
+    "node-fetch": "^3.3.2",
+    "uuid": "^13.0.0",
+    "yargs": "^17.7.2"
+  }
+}

@@ -1,13 +1,17 @@
 import express from "express";
 import repoController from "../controller/repoController.js";
-import pushRepo, { upload } from "../controller/push.js";
+import pushRepository, { upload } from "../controller/pushController.js";
+import pullRepository from "../controller/pullController.js";
 
 const repoRoute = express.Router();
 
-// PUSH ROUTE
-repoRoute.post("/repo/push", upload.array("files"), pushRepo);
+// PUSH (server-side)
+repoRoute.post("/repo/push",upload.array("files"),pushRepository);
 
-// REPO ROUTES
+// PULL (server-side)
+repoRoute.get("/repo/pull/:userId/:repoName",pullRepository);
+
+// REPO CRUD ROUTES
 repoRoute.post("/repo/create", repoController.createRepository);
 repoRoute.get("/repo/all", repoController.getAllRepository);
 repoRoute.get("/repo/:id", repoController.fatchedRepositoryById);
