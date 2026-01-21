@@ -6,6 +6,7 @@ import { useAuth } from "../AuthContext.jsx";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function Dashboard() {
@@ -43,6 +44,7 @@ function Dashboard() {
       try {
         const publicRes = await axios.get(`${BACKEND_URL}/repo/all`);
         // setsuggestedRepository(res.data.repositories);
+        
         setPublicRepos(publicRes.data.repositories);
         console.log("here is seggested repo" , publicRes)
       } catch (error) {
@@ -71,26 +73,33 @@ function Dashboard() {
     repo.name.toLowerCase().includes(publicSearch.toLowerCase())
   );
 
-  const visitProfile = () =>{
+  const visitProfile = (userId) =>{
+    // const userId = localStorage.getItem("token")
     if(currentUser){
-      navigate("/profile")
+     navigate(`/profile/${userId}`);
     }else{
       navigate("/auth")
     }
     
   }
 
+  const createRepoHandller =  async (e) => {
+    navigate("/createRepo")
+    
+  }
+
+
   return (
     <div className="min-h-screen bg-[#0d1117] text-gray-200 flex">
       {/* Sidebar */}
       <aside className="w-64 border-r border-gray-800 p-4 hidden md:block">
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 bg-white rounded-full" onClick={visitProfile} />
+          <div className="w-8 h-8 bg-white rounded-full" onClick={()=> navigate(`/profile/${currentUser}`)} />
           <span className="font-semibold">Dashboard</span>
         </div>
 
         <div className="mb-4">
-          <button className="w-full bg-green-600 hover:bg-green-500 text-sm py-2 rounded">
+          <button onClick={createRepoHandller} className="w-full bg-green-600 hover:bg-green-500 text-sm py-2 rounded">
             New
           </button>
         </div>
@@ -163,13 +172,18 @@ function Dashboard() {
             </p>
           ) : (
             filteredPublicRepos.map((repo) => (
-              <div
+              <div onClick={()=>visitProfile(repo.owner._id)}
                 key={repo._id}
                 className="bg-[#010409] border border-gray-800 rounded-lg p-5"
               >
                 <h3 className="text-blue-400 font-semibold">
                   {repo.name}
                 </h3>
+                <div className="bg-[#1e2229] p-2 rounded-sm mt-2">
+                  
+                <h4 className="text-green-700 text-[0.9rem] font-semibold">
+                  By {repo.owner.username}
+                </h4>
 
                 <p className="text-gray-300 text-sm mt-1">
                   {repo.description || "No description"}
@@ -179,6 +193,8 @@ function Dashboard() {
                   <span>📁 {repo.content?.length || 0} files</span>
                   <span>🐞 {repo.issues?.length || 0} issues</span>
                 </div>
+                </div>
+               
               </div>
             ))
           )}

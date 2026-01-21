@@ -6,17 +6,13 @@ import Dashboard from "./dashboard/Dashboard";
 import Profile from "./user/Profile";
 import Login from "./auth/Login";
 import Signup from "./auth/Signup";
+import CreateRepo from "./userForms/createRepo";
 
 const ProjectRoutes = () => {
-  const { currentUser, setCurrentUser, loading } = useAuth();
-
-  //  ALWAYS call hooks
-  useEffect(() => {
-    const userIdFromStorage = localStorage.getItem("userId");
-    if (userIdFromStorage && !currentUser) {
-      setCurrentUser(userIdFromStorage);
-    }
-  }, [currentUser, setCurrentUser]);
+  const { currentUser,loading } = useAuth();
+if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const routes = useRoutes([
     {
@@ -24,7 +20,7 @@ const ProjectRoutes = () => {
       element: currentUser ? <Dashboard /> : <Navigate to="/auth" />,
     },
     {
-      path: "/profile",
+      path: "/profile/:userId",
       element: currentUser ? <Profile /> : <Navigate to="/auth" />,
     },
     {
@@ -35,13 +31,11 @@ const ProjectRoutes = () => {
       path: "/signup",
       element: currentUser ? <Navigate to="/" /> : <Signup />,
     },
+    {
+      path: "/createRepo",
+      element: currentUser ? <CreateRepo /> : <Navigate to="/auth" />
+    },
   ]);
-
-  // handle loading AFTER hooks
-  if (loading) {
-    return <div className="text-white p-4">Loading...</div>;
-  }
-
   return routes;
 };
 

@@ -3,6 +3,7 @@
 import React, { use, useEffect, useState } from "react";
 import ContributionCount from "../user/ContributionCount.jsx";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -10,11 +11,15 @@ function Profile() {
 
   const [userData, setUserData] = useState([]);
   const [repoData, setRepoData] = useState([]);
+  const params = useParams()
+ 
+  
   useEffect(()=>{
-    const userId = localStorage.getItem("userId");
+    // const userId = localStorage.getItem("userId");
+     console.log("params userid", params.userId);
      try {
       const getUserProfile = async () =>{
-        const res = await axios.get(`${BACKEND_URL}/profile/${userId}`);
+        const res = await axios.get(`${BACKEND_URL}/profile/${params.userId}`);
         setUserData(res.data.getOneUser);
         console.log("here is response", res);
         
@@ -28,10 +33,12 @@ function Profile() {
 
   // fatched user Repositories
   useEffect(()=>{
-    const userId = localStorage.getItem("userId");
+    // const userId = useParams("userId")
+    // const userId = localStorage.getItem("userId");
+    
     try {
       const getCurrentUserRepo = async () =>{
-        const res = await axios.get(`${BACKEND_URL}/repo/user/${userId}`)
+        const res = await axios.get(`${BACKEND_URL}/repo/user/${ params.userId}`)
         setRepoData(res.data.repositories);
         console.log("here is user repo" , res)
       }
