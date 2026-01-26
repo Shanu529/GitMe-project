@@ -3,6 +3,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { connectRedis } from "../config/redis.js";
 
 
 
@@ -178,6 +179,45 @@ const deleteUserProfile = async (req, res) => {
 
 }
 
+const logout = async (req, res) => {
+
+    try {
+
+        // get token fromm headers
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.json({ message: "no token provided" });
+        }
+
+        const token = authHeader.split(" ")[1];
+
+        // decode jwt token 
+        const decoded = jwt.decode(token)
+        if (!decoded || !decoded.exp) {
+            return res.status(400).json({ message: "Invalid token " })
+        }
+
+        const redis = await connectRedis();
+
+        const ttl = decoded.exp - Math.floor(Date.now() / 1000);
+
+        // token store in redis as a blacklist token
+
+        if (ttl > 0) {
+            await redis.set(`blacklist:${token}`, "true", {
+                EX: ttl
+            })
+        }
+
+
+        return res.json({ message: "Logged out successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Logout failed" });
+
+    }
+}
+
 export default {
     getAllUsers,
     signup,
@@ -185,4 +225,5 @@ export default {
     getUserProfile,
     updateUserProfile,
     deleteUserProfile,
+    logout
 }

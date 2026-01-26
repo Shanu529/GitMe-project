@@ -35,6 +35,7 @@
 //   );
 // };
 
+import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext(null);
@@ -44,6 +45,8 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -55,16 +58,27 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    setCurrentUser(null);
+  const logout = async () => {
+    try {
+      await axios.post(`${BACKEND_URL}/"logout`, {
+        Headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+    } catch (error) {
+      console.error("something went wrong logout function...", error);
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      setCurrentUser(null);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ setCurrentUser, currentUser, logout, loading }}>
+    <AuthContext.Provider
+      value={{ setCurrentUser, currentUser, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
-

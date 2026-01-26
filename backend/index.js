@@ -14,6 +14,7 @@ import { Server } from "socket.io";
 import { connectRedis } from "./config/redis.js";
 import redisRoute from "./routes/redisTest.js";
 import { rateLimit } from "./middlerware/rateLimit.js";
+import { checkBlackList } from "./middlerware/checkBlacklist.js";
 
 
 
@@ -36,7 +37,7 @@ io.on("connection", (socket) => {
 
 // RATE LIMIT MIDDLERWARE (GLOBAL) => REDIS
 app.use(rateLimit);
-
+app.use(checkBlackList); 
 app.use("/", mainRouter);
 app.use("/", redisRoute)
 
