@@ -13,7 +13,6 @@ import mainRouter from "./routes/main.router.js";
 import { Server } from "socket.io";
 import { connectRedis } from "./config/redis.js";
 import redisRoute from "./routes/redisTest.js";
-import { rateLimit } from "./middlerware/rateLimit.js";
 import { checkBlackList } from "./middlerware/checkBlacklist.js";
 
 
@@ -35,25 +34,20 @@ io.on("connection", (socket) => {
   console.log("socket connected:", socket.id);
 });
 
-// RATE LIMIT MIDDLERWARE (GLOBAL) => REDIS
-app.use(rateLimit);
-app.use(checkBlackList); 
+
+app.use(checkBlackList);
 app.use("/", mainRouter);
 app.use("/", redisRoute)
 
 
-let redis 
+let redis
 const serverStart = async () => {
 
   try {
     await connectDB()
-    console.log("mongodb running..");
-
     redis = await connectRedis();
-    console.log("redis running...");
-
     server.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`Server running on port ${PORT}`);
 
     })
 
@@ -61,8 +55,6 @@ const serverStart = async () => {
     console.error("Server startup failed:", error);
     process.exit(1); // stop app if something fails
   }
-
-
 }
 
 serverStart();

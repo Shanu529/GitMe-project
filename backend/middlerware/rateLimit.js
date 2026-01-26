@@ -22,7 +22,7 @@ export const rateLimit = async (req, res, next) => {
     }
 
     // block if exceend
-    if (count > 5) {
+    if (count > 15) {
         return res.status(429).json({
             message: "Too many requests, try again later"
         });
