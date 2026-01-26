@@ -117,23 +117,23 @@ const updateUserProfile = async (req, res) => {
     try {
         const userId = req.params.id
 
-        const { username, email, password } = req.body;
+        const { username,
+            email,
+            password,
+            bio,
+            profession,
+            city,
+            country } = req.body;
 
         // find user to update details
         const user = await User.findById(userId);
 
-        if (!user) {
-            return res.status(404).json({ message: "user not found" })
-        }
-
-        if (username) {
-            user.username = username;
-        }
+        if (username) user.username = username;
         if (email) user.email = email;
-        if (password) {
-            user.password = await bcrypt.hash(password, 10);
-        }
-
+        if (bio) user.bio = bio;
+        if (profession) user.profession = profession;
+        if (city) user.city = city;
+        if (country) user.country = country;
         await user.save();
 
         res.status(200).json({
@@ -141,7 +141,11 @@ const updateUserProfile = async (req, res) => {
             user: {
                 id: user._id,
                 username: user.username,
-                email: user.email
+                email: user.email,
+                bio: user.bio,
+                profession: user.profession,
+                city: user.city,
+                country: user.country
             }
         })
     } catch (error) {
@@ -157,7 +161,7 @@ const updateUserProfile = async (req, res) => {
 const deleteUserProfile = async (req, res) => {
 
     try {
-        const userID =  req.params.id;
+        const userID = req.params.id;
 
         const deleteUser = await User.findByIdAndDelete(userID);
         if (!deleteUser) {

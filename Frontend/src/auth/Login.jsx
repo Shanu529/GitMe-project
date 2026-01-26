@@ -17,31 +17,30 @@ function Login() {
 
   const navigate = useNavigate();
   const formHandle = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const res = await axios.post(`${BACKEND_URL}/login`, {
-      email,
-      password,
-    });
+    try {
+      const res = await axios.post(`${BACKEND_URL}/login`, {
+        email,
+        password,
+      });
 
-    const token = res.data.token;
-    const user = res.data.user;
+      const token = res.data.token;
+      const user = res.data.user;
 
-    localStorage.setItem("token", token);
-    localStorage.setItem("userId", user.id);
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", user.id);
 
-    setCurrentUser(user); // ✅ FIXED
-    navigate("/", { replace: true });
-  } catch (error) {
-    console.log("here is error ", error);
-    alert("Login failed! try again");
-  } finally {
-    setLoading(false);
-  }
-};
-
+      setCurrentUser(user.id); //
+      navigate("/", { replace: true });
+    } catch (error) {
+      console.log("here is error ", error);
+      alert("Login failed! try again");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0d1117] flex flex-col items-center justify-center text-gray-200">

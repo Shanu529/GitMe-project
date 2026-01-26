@@ -7,12 +7,10 @@ import Profile from "./user/Profile";
 import Login from "./auth/Login";
 import Signup from "./auth/Signup";
 import CreateRepo from "./userForms/createRepo";
+import EditProfile from "./user/EditProfile";
 
 const ProjectRoutes = () => {
   const { currentUser,loading } = useAuth();
-if (loading) {
-    return <div>Loading...</div>;
-  }
 
   const routes = useRoutes([
     {
@@ -35,7 +33,14 @@ if (loading) {
       path: "/createRepo",
       element: currentUser ? <CreateRepo /> : <Navigate to="/auth" />
     },
+    {
+      path:"/editprofile", element: currentUser ? < EditProfile/>: <Navigate to="/auth" />
+    }
   ]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
   return routes;
 };
 
