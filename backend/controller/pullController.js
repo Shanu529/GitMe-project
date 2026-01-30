@@ -1,9 +1,10 @@
 import fs from "fs/promises";
 import path from "path";
+import Repository from "../models/repoModel.js";
 
 const pullRepository = async (req, res) => {
   try {
-    console.log("🔥 PUSH HIT");
+    console.log("PUSH HIT");
     console.log("BODY:", req.body);
     console.log("FILES:", req.files?.length);
     const { userId, repoName } = req.params;
@@ -17,6 +18,15 @@ const pullRepository = async (req, res) => {
       repoName
     );
 
+    // update db to store content name
+    const repo = await Repository.findOne({ name: repoName });
+    for (const file of req.files) {
+      if (!repo.content.includes(files.originalname)) {
+        repo.content.push(file.originalname)
+      }
+    }
+
+    await repo.save()
     console.log("LOOKING FOR REPO AT:", repoPath);
 
     // check repo folder

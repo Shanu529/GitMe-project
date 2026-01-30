@@ -6,10 +6,10 @@ import pullRepository from "../controller/pullController.js";
 const repoRoute = express.Router();
 
 // PUSH (server-side)
-repoRoute.post("/repo/push",upload.array("files"),pushRepository);
+repoRoute.post("/repo/push", upload.array("files"), pushRepository);
 
 // PULL (server-side)
-repoRoute.get("/repo/pull/:userId/:repoName",pullRepository);
+repoRoute.get("/repo/pull/:userId/:repoName", pullRepository);
 
 // REPO CRUD ROUTES
 repoRoute.post("/repo/create", repoController.createRepository);
@@ -20,5 +20,16 @@ repoRoute.get("/repo/user/:userID", repoController.fatchedRepositorisForCurrentU
 repoRoute.put("/repo/update/:id", repoController.updateRepositoryById);
 repoRoute.patch("/repo/toggle/:id", repoController.toggeleVisibilityById);
 repoRoute.delete("/repo/delete/:id", repoController.deleRepositoryById);
+
+// repo/:repoId/file/:fileName
+
+
+// /repo/tony_stark/file/ironman-core-system
+// /repo/tony_stark/file/onefile123
+
+repoRoute.get("/repo/:repoId/file/:commitId/:filename", repoController.getFileContent);
+repoRoute.get("/repo/:repoId/commit/:commitId/files",repoController.getFilesOfCommit
+);
+
 
 export default repoRoute;

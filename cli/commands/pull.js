@@ -46,7 +46,7 @@ async function pushRepo() {
     const res = await fetch(`${serverUrl}/repo/push`, {
       method: "POST",
       body: form,
-      headers: form.getHeaders(), //  THIS WAS MISSING
+      headers: form.getHeaders(), 
     });
 
     if (!res.ok) {

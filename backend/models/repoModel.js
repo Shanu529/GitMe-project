@@ -12,6 +12,10 @@ const RepositorySchema = new mongoose.Schema({
         type: String,
 
     },
+    currentCommitId :{
+        type : String,
+        default: null
+    },
     content: [
         {
             type: String,

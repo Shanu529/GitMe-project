@@ -2,10 +2,17 @@
 import mongoose from "mongoose";
 import Repository from "../models/repoModel.js";
 import Issue from "../models/issueModel.js";
-// 6392240427
+
+import { fileURLToPath } from "url";
+
+import fs from "fs";
+import path from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const createRepository = async (req, res) => {
-    
+
     try {
         const { name, owner, content, description, visibility, issues } = req.body;
         if (!owner || !name) {
@@ -52,7 +59,7 @@ const getAllRepository = async (req, res) => {
 }
 
 const fatchedRepositoryById = async (req, res) => {
-    const { id } = req.params.id
+    const { id } = req.params
     try {
         const repository = await Repository.find({ _id: id })
             .populate("owner")
@@ -82,20 +89,19 @@ const fatchedRepositoryByName = async (req, res) => {
 }
 
 const fatchedRepositorisForCurrentUser = async (req, res) => {
-  const { userID } = req.params;
+    const { userID } = req.params;
 
-  try {
-    const userRepo = await Repository.find({ owner: userID });
+    try {
+        const userRepo = await Repository.find({ owner: userID });
 
-    res.status(200).json({
-      repositories: userRepo // [] is OK
-    });
+        res.status(200).json({
+            repositories: userRepo // [] is OK
+        });
 
-  } catch (error) {
-    res.status(500).json({ message: "something went wrong", error });
-  }
+    } catch (error) {
+        res.status(500).json({ message: "something went wrong", error });
+    }
 };
-
 
 const updateRepositoryById = async (req, res) => {
 
@@ -154,6 +160,115 @@ const deleRepositoryById = async (req, res) => {
     }
 }
 
+const getFileContent = async (req, res) => {
+
+    try {
+        const { repoId, commitId, filename } = req.params;
+        const repo = await Repository.findById(repoId).populate("owner", "username");
+        if (!repo) {
+            return res.status(404).json({ message: "Repository not found" })
+        }
+
+        // build file path
+        // const filePath =
+        //     path.join(process.cwd(),
+        //         "gitme-storage",
+        //         repo.owner.username,
+        //         repo.name,
+        //         commitId,
+        //         filename)
+        // const filePath = path.join(
+        //     new URL("../gitme-storage", import.meta.url).pathname,
+        //     repo.owner.username,
+        //     repo.name,
+        //     commitId,
+        //     filename
+        // );
+
+        const filePath = path.join(
+            __dirname,
+            "..",               // controller → backend
+            "gitme-storage",
+            repo.owner.username,
+            repo.name,
+            commitId,
+            filename
+        );
+        console.log("FINAL FILE PATH:", filePath);
+
+
+
+        // check  file is exist or nott
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ message: "File Not Founddd" })
+        }
+
+        // read file
+        const content = fs.readFileSync(filePath, "utf-8");
+
+        // send it to frontend
+        res.status(200).json({
+            filename,
+            content
+        })
+    } catch (error) {
+        console.error("READ FILE ERROR:", error);
+        res.status(500).json({
+            message: "something went wrong to read file",
+            error: error.message
+        });
+        // res.status(500).json({ message: "something went wrong to read file", error })
+    }
+
+}
+
+const getFilesOfCommit = async (req, res) => {
+
+    try {
+        const { commitId, repoId } = req.params;
+
+        const repo = await Repository.findById(repoId).populate("owner", "username")
+
+        if (!repo) {
+            return res.status(400).json({ message: "repository not found" })
+        }
+
+        // build path
+        const commitPath = path.join(
+            // __dirname,"..","gitme-storage", repo.owner.username, commitId
+            __dirname,
+            "..",
+            "gitme-storage",
+            repo.owner.username,
+            repo.name,
+            commitId
+        )
+
+        // check file commmit exist or not
+        if (!fs.existsSync(commitPath)) {
+            return res.status(400).json({ message: "commit not found" })
+        }
+
+        // if exist then read it
+        // const files = fs.readFileSync(commitPath);
+
+        // READ ALL FILES
+        const files = fs
+            .readdirSync(commitPath)
+            .filter(file =>
+                fs.statSync(path.join(commitPath, file)).isFile()
+            );
+
+
+        // send it to frontend
+        res.status(200).json({ files })
+    } catch (error) {
+        res.status(500).json({ message: "somthing went wrong", error })
+    }
+
+
+}
+
 export default {
     createRepository,
     getAllRepository,
@@ -163,4 +278,6 @@ export default {
     updateRepositoryById,
     toggeleVisibilityById,
     deleRepositoryById,
+    getFileContent,
+    getFilesOfCommit
 }

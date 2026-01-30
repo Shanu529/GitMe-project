@@ -152,10 +152,10 @@
 
 // export default Profile;
 
-import React, { use, useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import ContributionCount from "../user/ContributionCount.jsx";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -164,6 +164,7 @@ function Profile() {
   const [repoData, setRepoData] = useState([]);
   const params = useParams();
 
+  const navigate = useNavigate()
   useEffect(() => {
     console.log("params userid", params.userId);
     try {
@@ -196,16 +197,15 @@ function Profile() {
   return (
     <div className="min-h-screen bg-[#0d1117] text-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex flex-col md:flex-row gap-8">
-        {/*  LEFT PROFILE COLUMN */}
+        
         <aside className="w-full md:w-72">
-          {/* Avatar */}
+       
           <img
             src="https://thepicturesdp.in/wp-content/uploads/2025/08/anime-boy-face-dp.jpg"
             alt="profile"
             className="rounded-full w-40 h-40 sm:w-64 sm:h-64 border border-gray-800 mx-auto md:mx-0"
           />
 
-          {/* Name */}
           <h1 className="text-xl sm:text-2xl font-semibold mt-4 text-center md:text-left">
             {userData.username}
           </h1>
@@ -213,17 +213,14 @@ function Profile() {
             {userData.profession || "GitMe User"}
           </p>
 
-          {/* Follow Button */}
           <button className="w-full mt-4 bg-[#21262d] hover:bg-[#30363d] border border-gray-700 rounded py-1.5 text-sm">
             Follow
           </button>
 
-          {/* Bio */}
           <p className="text-sm text-gray-300 mt-4 leading-relaxed text-left">
             {userData.bio || "This user has not added a bio yet."}
           </p>
 
-          {/* Stats */}
           <div className="flex  md:justify-start gap-4 mt-4 text-sm text-gray-400">
             <span>
               <strong className="text-white">
@@ -244,9 +241,8 @@ function Profile() {
           </div>
         </aside>
 
-        {/* RIGHT CONTENT */}
         <main className="flex-1">
-          {/* Popular repositories */}
+          {/* rrepositories */}
           <h2 className="text-lg sm:text-xl font-semibold mb-4">
             Popular repositories
           </h2>
@@ -261,7 +257,9 @@ function Profile() {
                   className="flex justify-between
                   flex-wrap gap-2"
                 >
-                  <h3 className="text-blue-400 font-semibold hover:underline cursor-pointer">
+                  <h3
+                   onClick={(e) => navigate(`/repo/${repo._id}`)}
+                  className="text-blue-400 font-semibold hover:underline cursor-pointer">
                     {repo.name}
                   </h3>
                   <span className="text-xs border border-gray-700 rounded-full px-2 py-0.5">
