@@ -3,10 +3,12 @@ import repoController from "../controller/repoController.js";
 import pushRepository, { upload } from "../controller/pushController.js";
 import pullRepository from "../controller/pullController.js";
 
+// middlerware 
+import AuthMiddlerware from "../middlerware/AuthMiddlerware.js";
 const repoRoute = express.Router();
 
 // PUSH (server-side)
-repoRoute.post("/repo/push", upload.array("files"), pushRepository);
+repoRoute.post("/repo/push", AuthMiddlerware, upload.array("files"), pushRepository);
 
 // PULL (server-side)
 repoRoute.get("/repo/pull/:userId/:repoName", pullRepository);

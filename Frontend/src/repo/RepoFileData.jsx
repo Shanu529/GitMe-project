@@ -58,7 +58,7 @@ function RepoFileData() {
         </div>
 
         {/* File container */}
-        <div className="border border-[#30363d] rounded-md overflow-hidden">
+        <div className=" border-[#30363d] rounded-md overflow-hidden">
           {/* File header */}
           <div className="flex items-center justify-between bg-[#161b22] px-4 py-2 border-b border-[#30363d]">
             <div className="font-medium text-sm">📄 {fileName}</div>

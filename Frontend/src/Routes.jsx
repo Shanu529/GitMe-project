@@ -11,9 +11,10 @@ import CreateRepo from "./userForms/CreateRepo";
 import EditProfile from "./user/EditProfile";
 import RepoHome from "./repo/RepoHome";
 import RepoFileData from "./repo/RepoFileData";
+import PushFile from "./userForms/PushFile";
 
 const ProjectRoutes = () => {
-  const { currentUser,loading } = useAuth();
+  const { currentUser, loading } = useAuth();
 
   const routes = useRoutes([
     {
@@ -34,18 +35,25 @@ const ProjectRoutes = () => {
     },
     {
       path: "/createRepo",
-      element: currentUser ? <CreateRepo /> : <Navigate to="/auth" />
+      element: currentUser ? <CreateRepo /> : <Navigate to="/auth" />,
     },
     {
-      path:"/editprofile", element: currentUser ? < EditProfile/>: <Navigate to="/auth" />
+      path: "/editprofile",
+      element: currentUser ? <EditProfile /> : <Navigate to="/auth" />,
     },
     {
-      path:"/repo/:repoId", element: currentUser ? < RepoHome/>: <Navigate to="/auth" />
+      path: "/repo/:repoId",
+      element: currentUser ? <RepoHome /> : <Navigate to="/auth" />,
     },
-    
+
     {
-      path:"/repo/:repoId/file/:commitId/:fileName", element: currentUser ? < RepoFileData/>: <Navigate to="/auth" />
-    }
+      path: "/repo/:repoId/file/:commitId/:fileName",
+      element: currentUser ? <RepoFileData /> : <Navigate to="/auth" />,
+    },
+    {
+      path: "/repo/:repoId/push",
+      element: currentUser ? <PushFile /> : <Navigate to="/auth" />,
+    },
   ]);
 
   if (loading) {
