@@ -12,8 +12,8 @@ const RepositorySchema = new mongoose.Schema({
         type: String,
 
     },
-    currentCommitId :{
-        type : String,
+    currentCommitId: {
+        type: String,
         default: null
     },
     content: [
@@ -33,8 +33,8 @@ const RepositorySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
-
     },
+
 
     issues: [
         {

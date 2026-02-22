@@ -14,7 +14,7 @@ repoRoute.post("/repo/push", AuthMiddlerware, upload.array("files"), pushReposit
 repoRoute.get("/repo/pull/:userId/:repoName", pullRepository);
 
 // REPO CRUD ROUTES
-repoRoute.post("/repo/create", repoController.createRepository);
+repoRoute.post("/repo/create", AuthMiddlerware, repoController.createRepository);
 repoRoute.get("/repo/all", repoController.getAllRepository);
 repoRoute.get("/repo/:id", repoController.fatchedRepositoryById);
 repoRoute.get("/repo/name/:name", repoController.fatchedRepositoryByName);

@@ -12,51 +12,57 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const createRepository = async (req, res) => {
-
     try {
-        const { name, owner, content, description, visibility, issues } = req.body;
-        if (!owner || !name) {
-            return res.status(404).json({ message: "user not found", error });
-        }
+        const { name, description, visibility } = req.body;
 
-        if (!mongoose.Types.ObjectId.isValid(owner)) {
-            return res.status(400).json({ message: "Invaild UserId Try again" });
-        }
+        // 🔐 owner must come from logged-in user
+        const owner = req.user.userId;
 
         const newRepository = new Repository({
             name,
             owner,
-            content,
             description,
             visibility,
-            issues
+            content: [],
+            issues: []
         });
 
-        const result = await newRepository.save();
+        await newRepository.save();
 
-        res.status(200).json({
-            message: "Repository created!",
-            repositoryId: result._id
+        res.status(201).json({
+            message: "Repository created",
+            repositoryId: newRepository._id
         });
-
 
     } catch (error) {
-        return res.status(500).json({ message: "something went wrong", error })
+        res.status(500).json({ message: "error", error });
     }
+};
 
-}
 
+// const getAllRepository = async (req, res) => {
+//     try {
+//         const repositories = await Repository.find({})
+//             .populate("owner")
+//             .populate("issues");
+
+//         res.status(200).json({ message: "all repositories are fatched", repositories })
+//     } catch (error) {
+//         res.status(500).json({ message: "something went wrong", error })
+//     }
+// }
 const getAllRepository = async (req, res) => {
     try {
         const repositories = await Repository.find({})
-            .populate("owner")
+            .populate("owner", "username email")
             .populate("issues");
 
-        res.status(200).json({ message: "all repositories are fatched", repositories })
+        res.status(200).json({ repositories });
     } catch (error) {
-        res.status(500).json({ message: "something went wrong", error })
+        res.status(500).json({ message: "something went wrong", error });
     }
-}
+};
+
 
 const fatchedRepositoryById = async (req, res) => {
     const { id } = req.params
@@ -92,10 +98,11 @@ const fatchedRepositorisForCurrentUser = async (req, res) => {
     const { userID } = req.params;
 
     try {
-        const userRepo = await Repository.find({ owner: userID });
+        const userRepo = await Repository.find({ owner: userID })
+            .populate("owner", "username email");
 
         res.status(200).json({
-            repositories: userRepo // [] is OK
+            repositories: userRepo // [] 
         });
 
     } catch (error) {
@@ -160,67 +167,122 @@ const deleRepositoryById = async (req, res) => {
     }
 }
 
-const getFileContent = async (req, res) => {
+// const getFileContent = async (req, res) => {
 
+//     try {
+//         console.log("OWNER ID:", ownerId);
+//         console.log("REPO NAME:", repo.name);
+//         console.log("COMMIT ID:", commitId);
+//         console.log("FILENAME:", filename);
+//         console.log("FINAL FILE PATH:", filePath);
+//         const { repoId, commitId, filename } = req.params;
+//         const repo = await Repository.findById(repoId).populate("owner", "username");
+//         if (!repo) {
+//             return res.status(404).json({ message: "Repository not found" })
+//         }
+//         // const ownerId = repo.owner.toString();
+//         const ownerId = repo.owner._id.toString();
+
+
+//         // build file path
+//         // const filePath =
+//         //     path.join(process.cwd(),
+//         //         "gitme-storage",
+//         //         repo.owner.username,
+//         //         repo.name,
+//         //         commitId,
+//         //         filename)
+//         // const filePath = path.join(
+//         //     new URL("../gitme-storage", import.meta.url).pathname,
+//         //     repo.owner.username,
+//         //     repo.name,
+//         //     commitId,
+//         //     filename
+//         // );
+
+//         const filePath = path.join(
+//             __dirname,
+//             "..",               // controller → backend
+//             "gitme-storage",
+//             // repo.owner.username,
+//             ownerId,
+//             repo.name,
+//             commitId,
+//             filename
+//         );
+//         console.log("FINAL FILE PATH:", filePath);
+
+
+
+
+//         console.log("COMMIT PATH:", commitPath);
+//         // check  file is exist or nott
+//         if (!fs.existsSync(filePath)) {
+//             return res.status(404).json({ message: "File Not Founddd" })
+//         }
+
+//         // read file
+//         const content = fs.readFileSync(filePath, "utf-8");
+
+//         // send it to frontend
+//         res.status(200).json({
+//             filename,
+//             content
+//         })
+//     } catch (error) {
+//         console.error("READ FILE ERROR:", error);
+//         res.status(500).json({
+//             message: "something went wrong to read file",
+//             error: error.message
+//         });
+//         // res.status(500).json({ message: "something went wrong to read file", error })
+//     }
+
+// }
+
+const getFileContent = async (req, res) => {
     try {
         const { repoId, commitId, filename } = req.params;
+
         const repo = await Repository.findById(repoId).populate("owner", "username");
+
         if (!repo) {
-            return res.status(404).json({ message: "Repository not found" })
+            return res.status(404).json({ message: "Repository not found" });
         }
 
-        // build file path
-        // const filePath =
-        //     path.join(process.cwd(),
-        //         "gitme-storage",
-        //         repo.owner.username,
-        //         repo.name,
-        //         commitId,
-        //         filename)
-        // const filePath = path.join(
-        //     new URL("../gitme-storage", import.meta.url).pathname,
-        //     repo.owner.username,
-        //     repo.name,
-        //     commitId,
-        //     filename
-        // );
+        const ownerId = repo.owner._id.toString();
 
         const filePath = path.join(
             __dirname,
-            "..",               // controller → backend
+            "..",
             "gitme-storage",
-            repo.owner.username,
+            ownerId,
             repo.name,
             commitId,
             filename
         );
+
         console.log("FINAL FILE PATH:", filePath);
 
-
-
-        // check  file is exist or nott
         if (!fs.existsSync(filePath)) {
-            return res.status(404).json({ message: "File Not Founddd" })
+            return res.status(404).json({ message: "File Not Found" });
         }
 
-        // read file
         const content = fs.readFileSync(filePath, "utf-8");
 
-        // send it to frontend
         res.status(200).json({
             filename,
             content
-        })
+        });
+
     } catch (error) {
         console.error("READ FILE ERROR:", error);
         res.status(500).json({
             message: "something went wrong to read file",
             error: error.message
         });
-        // res.status(500).json({ message: "something went wrong to read file", error })
     }
-
-}
+};
 
 const getFilesOfCommit = async (req, res) => {
 
@@ -232,6 +294,9 @@ const getFilesOfCommit = async (req, res) => {
         if (!repo) {
             return res.status(400).json({ message: "repository not found" })
         }
+        // const ownerId = repo.owner.toString();
+        const ownerId = repo.owner._id.toString();
+
 
         // build path
         const commitPath = path.join(
@@ -239,9 +304,14 @@ const getFilesOfCommit = async (req, res) => {
             __dirname,
             "..",
             "gitme-storage",
-            repo.owner.username,
+            // repo.owner.username,
+            ownerId,        // 
             repo.name,
             commitId
+            // ownerId,
+            // repo.name,
+
+            // commitId
         )
 
         // check file commmit exist or not

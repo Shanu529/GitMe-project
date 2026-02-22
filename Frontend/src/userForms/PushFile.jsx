@@ -121,6 +121,7 @@
 // }
 
 // export default PushFile;
+
 import React, { useState } from "react";
 import { UploadCloud, FileText, X } from "lucide-react";
 import axios from "axios";
@@ -166,11 +167,9 @@ function PushFile() {
       formData.append("commitId", `commit_${Date.now()}`);
 
       // appen fils
-
       for (let file of files) {
         formData.append("files", file);
       }
-
       // backend call
 
       const res = await axios.post(`${BACKEND_URL}/repo/push`, formData, {
@@ -184,14 +183,17 @@ function PushFile() {
       // navigate profile page
       navigate("/");
     } catch (error) {
-      console.log("sometiing went wrong in push file controller", error);
+        console.log("Push error message:", error.response?.data);
+  console.log("Push status:", error.response?.status);
+  console.log("Full error:", error);
+      // console.log("sometiing went wrong in push file controller", error);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#0d1117] flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-[#161b22] border border-[#30363d] rounded-xl p-6 shadow-xl">
-        {/* Header */}
+      
         <h2 className="text-lg font-semibold text-[#c9d1d9] text-center mb-1">
           Upload files
         </h2>
@@ -199,7 +201,6 @@ function PushFile() {
           Upload documents you want to push
         </p>
 
-        {/* Drop zone */}
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
@@ -249,7 +250,6 @@ function PushFile() {
           </div>
         )}
 
-        {/* Footer */}
         <button
         onClick={formHandlerSubmit}
           disabled={!files.length}

@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../AuthContext";
+
 
 function RepoHome() {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -11,6 +13,9 @@ function RepoHome() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  
+const { currentUser } = useAuth();
+
   useEffect(() => {
     const loadRepo = async () => {
       try {
@@ -18,14 +23,26 @@ function RepoHome() {
         const repoRes = await axios.get(`${BACKEND_URL}/repo/${repoId}`);
 
         const repoData = repoRes.data.repository[0];
+        console.log("here is repo details ", repoData);
+        
         setRepo(repoData);
+        console.log("here is repoData commit Id", repoData);
 
-        // load files from CURRENT COMMIT
-        const filesRes = await axios.get(
-          `${BACKEND_URL}/repo/${repoId}/commit/${repoData.currentCommitId}/files`,
-        );
-
-        setFiles(filesRes.data.files);
+        // Only fetch files if currentCommitId exists
+        if (repoData.currentCommitId) {
+          console.log("calling backend to read file...");
+          
+          const filesRes = await axios.get(
+            `${BACKEND_URL}/repo/${repoId}/commit/${repoData.currentCommitId}/files`,
+          );
+          console.log("files api caled");
+          
+          console.log("files Res:", filesRes);
+          setFiles(filesRes.data.files || []);
+        } else {
+          // No commits yet - repository is empty
+          setFiles([]);
+        }
       } catch (error) {
         console.error("Repo load failed", error);
       } finally {
@@ -34,7 +51,7 @@ function RepoHome() {
     };
 
     loadRepo();
-  }, [repoId]);
+  }, [repoId, BACKEND_URL]);
 
   if (loading) {
     return <div className="text-white">Loading...</div>;
@@ -43,16 +60,19 @@ function RepoHome() {
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9] px-6 py-6">
       <div className="max-w-5xl mx-auto">
-        <div className="flex  justify-between text-xl mb-4">
-          <span className="text-[#58a6ff]">{repo.name}</span>
-          <button
-            onClick={() => navigate(`/repo/${repoId}/push`)}
-            className="bg-blue-500 text-white py-2 px-5 rounded-lg text-sm cursor-pointer"
-          >
-            Push File
-          </button>
-        </div>
+      
+        <div className="flex justify-end mb-4">
+  {repo.owner?._id === currentUser && (
+    <button
+      onClick={() => navigate(`/repo/${repoId}/push`)}
+      className="bg-blue-500 text-white py-2 px-5 rounded-lg text-sm cursor-pointer"
+    >
+      Push File
+    </button>
+  )}
+</div>
 
+      
         <div className="border border-[#30363d] rounded-md">
           <table className="w-full">
             <tbody>

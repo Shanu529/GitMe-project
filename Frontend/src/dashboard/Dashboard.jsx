@@ -44,6 +44,7 @@ function Dashboard() {
         const publicRes = await axios.get(`${BACKEND_URL}/repo/all`);
         setPublicRepos(publicRes.data.repositories);
         console.log("here is seggested repo", publicRes);
+        // console.log("here is name ",publicRes.data.repositories[5]?.owner[5]?.username);
       } catch (error) {
         console.error(error);
       }
@@ -63,7 +64,7 @@ function Dashboard() {
       setSearchResult(filtered);
     }
 
-    console.log("here is repository of user", setSearchResult);
+    // console.log("here is repository of user", setSearchResult);
   }, [searchQuery, repositories]);
 
   const filteredPublicRepos = publicRepos.filter((repo) =>
@@ -71,6 +72,8 @@ function Dashboard() {
   );
 
   const visitProfile = (userId) => {
+    console.log("here is user id via onclick method ", userId);
+
     if (currentUser) {
       navigate(`/profile/${userId}`);
     } else {
@@ -244,7 +247,8 @@ function Dashboard() {
                   className="bg-[#1e2229] p-2 rounded-sm mt-2"
                 >
                   <h4 className="text-green-700 text-[0.9rem] font-semibold">
-                    By {repo.owner.username}
+                    {/* By {repo.owner.username} */}
+                    By {repo.owner?.username || "Unknown User"}
                   </h4>
 
                   <p className="text-gray-300 text-sm mt-1">
