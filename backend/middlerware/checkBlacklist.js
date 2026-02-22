@@ -6,7 +6,7 @@ import { connectRedis } from "../config/redis.js";
 export const checkBlackList = async (req, res, next) => {
     //  read Authorization header
 
-    const authHeader = req.header.authorization;
+    const authHeader = req.headers.authorization;
 
     if (!authHeader) {
         return next(); // no token 
@@ -19,7 +19,7 @@ export const checkBlackList = async (req, res, next) => {
     const redis = await connectRedis();
 
     // check token is exist or not in redis
-    const isBlock = redis.get(`blacklist:${token}`);
+    const isBlock = await redis.get(`blacklist:${token}`);
 
     if (isBlock) {
         return res.status(401).json({ message: "Token revoked. Please try again." })
