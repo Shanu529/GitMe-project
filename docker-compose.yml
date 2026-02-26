@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backend
+    container_name: gitme_backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    restart: always
+
+  frontend:
+   build: ./Frontend
+   container_name: gitme_frontend
+   ports:
+    - "4173:4173"
+   depends_on:
+    - backend
+   restart: always
