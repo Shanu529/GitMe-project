@@ -64,7 +64,7 @@ async function commitChanges(message) {
       await fs.unlink(path.join(stagingPath, file));
     }
 
-    console.log(`Commit ${commitID} created successfully ✅`);
+    console.log(`Commit ${commitID} created successfully `);
   } catch (error) {
     console.log("Error during commit:", error.message);
   }
