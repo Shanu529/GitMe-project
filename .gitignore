@@ -26,3 +26,9 @@ Thumbs.db
 
 # coverage
 coverage/
+
+# Ignore GitMe internal storage
+.myGit/
+backend/gitme-storage/
+node_modules/
+.env

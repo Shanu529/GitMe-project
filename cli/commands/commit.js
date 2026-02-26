@@ -1,47 +1,73 @@
-
-import { v4 as uuidv4 } from 'uuid';
-
+import { v4 as uuidv4 } from "uuid";
 import fs from "fs/promises";
 import path from "path";
 
 async function commitChanges(message) {
+  try {
+    const repoPath = path.resolve(process.cwd(), ".myGit");
+    const stagingPath = path.join(repoPath, "staging");
+    const commitsPath = path.join(repoPath, "commits");
 
-    const repoPath = path.resolve(process.cwd(), ".myGit"); //.myGit
-
-    const stagingPath = path.join(repoPath, "staging"); //.myGit/staging
-
-    const commitPath = path.join(repoPath, "commits"); // .myGit/commits
-
+    //  Check repo exists
     try {
-        const commitID = uuidv4();
-        // createcommit directory if not existe
-        const commitDir = path.join(commitPath, commitID); // .myGit/commits/commitID <- its name of file (ID)
-        await fs.mkdir(commitDir, { recursive: true });
-
-        // read all files from staging area
-        const files = await fs.readdir(stagingPath);
-
-        for (const file of files) {
-            // copy each file to commit directory
-            await fs.copyFile
-                (path.join(stagingPath, file), // source: .myGit/staging/file
-                    path.join(commitDir, file)); // destination: .myGit/commits/commitID/file
-        }
-
-        // create a commit message file
-        await fs.writeFile(
-            path.join(commitDir, "commit.json"), // .myGit/commits/commitsId/commit.json
-            JSON.stringify({
-                message, date: new Date().toISOString()
-            })
-        )
-
-        console.log(`commit ${commitID} created with ${message}`);
-
-    } catch (error) {
-        console.error("something went wrong in commit changes", error)
+      await fs.access(repoPath);
+    } catch {
+      console.log("Not a GitMe repository. Run gitme init first.");
+      return;
     }
 
+    //  Check staging exists
+    try {
+      await fs.access(stagingPath);
+    } catch {
+      console.log("Nothing to commit.");
+      return;
+    }
+
+    const files = await fs.readdir(stagingPath);
+
+    //  If staging empty
+    if (files.length === 0) {
+      console.log("Nothing to commit.");
+      return;
+    }
+
+    const commitID = uuidv4();
+    const commitDir = path.join(commitsPath, commitID);
+
+    await fs.mkdir(commitDir, { recursive: true });
+
+    // Copy staged files
+    for (const file of files) {
+      await fs.copyFile(
+        path.join(stagingPath, file),
+        path.join(commitDir, file)
+      );
+    }
+
+    // Save commit metadata
+    await fs.writeFile(
+      path.join(commitDir, "commit.json"),
+      JSON.stringify(
+        {
+          message,
+          date: new Date().toISOString(),
+          files,
+        },
+        null,
+        2
+      )
+    );
+
+    // Clear staging
+    for (const file of files) {
+      await fs.unlink(path.join(stagingPath, file));
+    }
+
+    console.log(`Commit ${commitID} created successfully ✅`);
+  } catch (error) {
+    console.log("Error during commit:", error.message);
+  }
 }
 
 export default commitChanges;
